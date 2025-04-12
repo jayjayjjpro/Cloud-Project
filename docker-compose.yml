@@ -9,11 +9,10 @@ services:
       - .:/app  
     environment:
       - ENVIRONMENT=development  
-      - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/mydatabase  # DB connection URL
     depends_on:
       - db  
     command: >
-      sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000" 
+      sh -c "uvicorn main:app --host 0.0.0.0 --port 8000"
     networks:
       - app_network  
 
@@ -27,7 +26,7 @@ services:
       POSTGRES_PASSWORD: postgres  
       POSTGRES_DB: mydatabase  
     volumes:
-      - pgdata:/var/lib/postgresql/data  
+      - pgdata_cloud:/var/lib/postgresql/data  
     networks:
       - app_network 
   
@@ -63,7 +62,7 @@ services:
   #     - app_network
 
 volumes:
-  pgdata:  
+  pgdata_cloud:  
 
 networks:
   app_network:
