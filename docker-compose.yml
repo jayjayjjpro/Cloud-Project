@@ -1,0 +1,70 @@
+services:
+  app:
+    build:
+      context: .  
+      dockerfile: Dockerfile  
+    ports:
+      - "8000:8000"  
+    volumes:
+      - .:/app  
+    environment:
+      - ENVIRONMENT=development  
+      - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/mydatabase  # DB connection URL
+    depends_on:
+      - db  
+    command: >
+      sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000" 
+    networks:
+      - app_network  
+
+  db:
+    image: postgres:15  
+    restart: always  
+    ports:
+      - "5432:5432"  
+    environment:
+      POSTGRES_USER: postgres  
+      POSTGRES_PASSWORD: postgres  
+      POSTGRES_DB: mydatabase  
+    volumes:
+      - pgdata:/var/lib/postgresql/data  
+    networks:
+      - app_network 
+  
+  pgadmin:
+    image: dpage/pgadmin4  
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com 
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"  
+    depends_on:
+      - db  
+    networks:
+      - app_network
+
+  # frontend:
+  #   build:
+  #     context: ./frontend  
+  #     dockerfile: Dockerfile  
+  #   ports:
+  #     - "5173:5173"  # Vite dev server port
+  #   volumes:
+  #     - ./frontend:/app  #
+  #     - /app/node_modules  
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true  # Enable polling for live reload
+  #     - WATCHPACK_POLLING=true  # Extra fix for file watching
+  #   depends_on:
+  #     - app  
+  #   command: npm run dev -- --host 0.0.0.0  
+  #   networks:
+  #     - app_network
+
+volumes:
+  pgdata:  
+
+networks:
+  app_network:
+    driver: bridge  
