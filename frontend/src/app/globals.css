@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+/* Default Light Theme */
+:root {
+  --background: #f7f8fa;           /* Softer light background */
+  --foreground: #1e1e1e;           /* Dark but not harsh */
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --font-sans: var(--font-geist-sans, Arial, sans-serif);
+  --font-mono: var(--font-geist-mono, monospace);
+}
+
+/* Optional Dark Mode Override */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #d0d8e8;         /* Still dark, but softer than black */
+    --foreground: #e4e4e7;
+    --card-bg: #1e1e1e;
+    --card-border: #2c2c2c;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Optional: Card style helper */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
