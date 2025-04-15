@@ -43,23 +43,22 @@ services:
     networks:
       - app_network
 
-  # frontend:
-  #   build:
-  #     context: ./frontend  
-  #     dockerfile: Dockerfile  
-  #   ports:
-  #     - "5173:5173"  # Vite dev server port
-  #   volumes:
-  #     - ./frontend:/app  #
-  #     - /app/node_modules  
-  #   environment:
-  #     - CHOKIDAR_USEPOLLING=true  # Enable polling for live reload
-  #     - WATCHPACK_POLLING=true  # Extra fix for file watching
-  #   depends_on:
-  #     - app  
-  #   command: npm run dev -- --host 0.0.0.0  
-  #   networks:
-  #     - app_network
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    working_dir: /app
+    command: npm run dev
+    depends_on:
+      - app
+    networks:
+      - app_network
 
 volumes:
   pgdata_cloud:  
