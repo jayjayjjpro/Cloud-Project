@@ -18,6 +18,12 @@ export default function Home() {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [insights, setInsights] = useState<
+    { query: string; result?: any[]; error?: string }[]
+  >([]);
+  const [rawInsightsExplanation, setRawInsightsExplanation] = useState("");
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [openInsight, setOpenInsight] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,6 +63,23 @@ export default function Home() {
       alert("Query failed.");
     }
     setLoading(false);
+  };
+
+  const generateInsights = async () => {
+    if (!tableName) return;
+    const formData = new FormData();
+    formData.append("table_name", tableName);
+    formData.append("column_info", columnInfo);
+    setInsightsLoading(true)
+    try {
+      const res = await axios.post("http://localhost:8000/insights/", formData);
+      setRawInsightsExplanation(res.data.raw_explanation);
+      setInsights(res.data.insights);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate insights.");
+    }
+    setInsightsLoading(false);
   };
 
   return (
@@ -101,6 +124,12 @@ export default function Home() {
           >
             {loading ? "Thinking..." : "Ask"}
           </button>
+          <button
+            onClick={generateInsights}
+            className="ml-4 px-4 py-2 rounded bg-[#6c5ce7] text-white text-sm hover:bg-[#5e4db8] transition"
+          >
+            {insightsLoading ? "Thinking..." : "Generate Insights"}
+          </button>
         </div>
       )}
 
@@ -135,6 +164,55 @@ export default function Home() {
               <p className="text-sm">{response.error}</p>
             </div>
           )}
+        </div>
+      )}
+      {insights.length > 0 && (
+        <div className="bg-white p-6 mt-6 rounded-md shadow space-y-6 border border-neutral-200">
+          <h3 className="text-lg font-medium mb-3">📊 Generated Insights</h3>
+          <pre className="bg-[#f9f9fa] text-sm text-[#1e1e1e] p-3 rounded-md whitespace-pre-wrap">{rawInsightsExplanation}</pre>
+
+          {insights.map((insight, i) => {
+            const isOpen = openInsight === i;
+            return (
+              <div key={i} className="border border-gray-200 rounded-md overflow-hidden">
+                <button
+                  onClick={() => setOpenInsight(isOpen ? null : i)}
+                  className={`w-full flex justify-between items-center px-4 py-3 text-left font-medium transition ${
+                    isOpen ? "bg-gray-200" : "bg-gray-100 hover:bg-gray-200"
+                  }`}
+                >
+                  <span>Results for Insight {i + 1}</span>
+                  <span className="text-xl leading-none">
+                    {isOpen ? "▲" : "▼"}
+                  </span>
+                </button>
+
+                {isOpen && (
+                  <div className="px-4 py-3 space-y-2 bg-white">
+                    <div>
+                      <span className="font-medium">SQL:</span>
+                      <pre className="bg-[#f4f4f5] text-sm p-3 rounded-md overflow-x-auto">
+                        {insight.query}
+                      </pre>
+                    </div>
+
+                    {insight.result && (
+                      <div>
+                        <span className="font-medium">Result:</span>
+                        <pre className="bg-[#f4f4f5] text-sm p-3 rounded-md overflow-x-auto">
+                          {JSON.stringify(insight.result, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+
+                    {insight.error && (
+                      <p className="text-red-500 text-sm">Error: {insight.error}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
