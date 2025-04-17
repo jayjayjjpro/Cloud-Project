@@ -9,6 +9,7 @@ A minimalistic full-stack application that lets you upload Excel files, automati
 - Ask natural language questions about your data
 - Translates them to SQL using OpenAI
 - Displays query results and explanations
+- Generates insights based on the data
 - Clean and modern frontend built with Next.js + TailwindCSS
 
 ---
@@ -43,15 +44,6 @@ DATABASE_URL=postgresql://postgres:postgres@db:5432/mydatabase
 
 ```bash
 docker-compose up --build
-```
-
-### 4. Running the Frontend (Next.js)
-
-You can run the frontend separately in dev mode:
-```bash
-cd frontend
-npm install
-npm run dev
 ```
 
 ---
